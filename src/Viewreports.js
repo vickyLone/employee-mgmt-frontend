@@ -1,0 +1,73 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+// import { Link } from 'react-router-dom';
+import proxyConfig from "./proxyConfig";
+
+
+const Viewreports = () => {
+    const [userReports, setUserReports] = useState([]);
+    //   const [allReports, setAllReports] = useState([]);
+    const microserviceReport = "report"; // Replace with the appropriate microservice key
+
+    const fetchUserReports = async () => {
+        try {
+            // Fetch user-specific reports based on empId from session
+            const empId = sessionStorage.getItem('empId');
+            const userResponse = await axios.get(`${proxyConfig[microserviceReport]}reports/employee/${empId}`);
+            setUserReports(userResponse.data);
+        } catch (error) {
+            console.error('Error fetching user reports:', error);
+        }
+    };
+
+
+
+    useEffect(() => {
+        // Fetch user reports and all reports when the component mounts
+        fetchUserReports();
+    }, []);
+
+    return (
+        <>
+            <div className="row">
+                <div className="col-12 mt-3">
+                    <h2>Your Reports</h2>
+                    <table className="table">
+                        {/* Table headers */}
+                        <thead>
+                            <tr>
+                                <th scope="col">Sr.No</th>
+                                <th scope="col">Report Id</th>
+                                <th scope="col">Task</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Start time</th>
+                                <th scope="col">End time</th>
+                                <th scope="col">Employee Id</th>
+                            </tr>
+                        </thead>
+                        {/* Table body for user reports */}
+                        <tbody>
+                            {userReports.map((report, index) => (
+                                <tr key={index}>
+                                    <th scope="row">{index + 1}</th>
+                                    <td>{report.reportId}</td>
+                                    <td>{report.task}</td>
+                                    <td>{report.status}</td>
+                                    <td>{new Date(report.startTime).toLocaleTimeString()}</td>
+                                    <td>{new Date(report.endTime).toLocaleTimeString()}</td>
+                                    <td>{report.empId}</td>
+
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+        </>
+    );
+};
+
+export default Viewreports;
